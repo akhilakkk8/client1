@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spark — Translate</title>
+<title>Spark — Change Tone</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,16 +18,17 @@
     --text-primary: #E6E9F5;
     --text-secondary: #9AA4C7;
     --text-dim: #5A6285;
-    --purple: #7C8CFF;
-    --cyan: #56CCF2;
-    --green: #4ADE80;
-    --teal: #2DD4BF;
-    --teal-glow: rgba(45,212,191,0.13);
-    --teal-border: rgba(45,212,191,0.22);
-    --badge-bg: #1E3A38;
-    --glow: rgba(45,212,191,0.13);
-    --btn-primary-start: #0D9488;
-    --btn-primary-end: #14B8A6;
+
+    /* Rose / fuchsia accent for "tone" */
+    --rose: #F472B6;
+    --rose-deep: #E879A8;
+    --rose-glow: rgba(244,114,182,0.13);
+    --rose-border: rgba(244,114,182,0.22);
+    --badge-bg: #2d1a28;
+
+    --glow: rgba(244,114,182,0.11);
+    --btn-start: #be185d;
+    --btn-end: #F472B6;
     --shadow: 0 24px 60px rgba(0,0,0,0.38), 0 8px 24px rgba(0,0,0,0.22);
   }
 
@@ -59,7 +60,6 @@
     z-index: 0;
   }
 
-  /* ── Card base ── */
   .card {
     position: relative;
     width: 360px;
@@ -74,11 +74,8 @@
     z-index: 1;
   }
 
-  /* ══════════════════════════════
-     CARD 1 — Code Editor
-  ══════════════════════════════ */
+  /* ══ CARD 1 — Editor ══ */
   .editor-card { padding: 20px; }
-
   .editor-panel {
     background: var(--inner);
     border-radius: 12px;
@@ -88,7 +85,6 @@
     display: flex;
     flex-direction: column;
   }
-
   .editor-topbar {
     display: flex;
     align-items: center;
@@ -97,18 +93,15 @@
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
-
   .macos-dots { display: flex; gap: 7px; align-items: center; }
-  .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
   .dot-red    { background: #FF5F56; }
   .dot-yellow { background: #FFBD2E; }
   .dot-green  { background: #27C93F; }
-
   .editor-filename {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: var(--text-secondary);
-    letter-spacing: 0.02em;
   }
   .editor-encoding {
     font-family: 'JetBrains Mono', monospace;
@@ -118,7 +111,6 @@
     padding: 2px 8px;
     border-radius: 4px;
   }
-
   .code-area {
     padding: 16px;
     display: flex;
@@ -128,7 +120,6 @@
     line-height: 1.75;
     flex: 1;
   }
-
   .line-numbers {
     color: var(--text-dim);
     text-align: right;
@@ -137,35 +128,28 @@
     font-size: 11px;
     padding-top: 1px;
   }
-
   .code-content { flex: 1; overflow: hidden; }
-  code .line { display: block; white-space: pre; }
+  code .line { display: block; white-space: pre-wrap; word-break: break-word; }
 
-  .kw   { color: #7C8CFF; }
-  .fn   { color: #56CCF2; }
-  .var  { color: #E6E9F5; }
-  .str  { color: #4ADE80; }
-  .str-sel { color: #4ADE80; }
-  .cm   { color: #4A5280; font-style: italic; }
-  .op   { color: #9AA4C7; }
-  .type { color: #F2994A; }
-  .key  { color: #2DD4BF; }
-  .num  { color: #F2C94C; }
-  .sel  {
-    background: rgba(45,212,191,0.12);
+  /* prose-like text colours */
+  .prose  { color: #C9D1FF; }
+  .sel    {
+    background: rgba(244,114,182,0.13);
     border-radius: 2px;
     padding: 0 1px;
   }
-  .flag {
-    font-size: 13px;
-    line-height: 1;
+  .cursor {
+    display: inline-block;
+    width: 2px; height: 13px;
+    background: var(--rose);
+    border-radius: 1px;
+    vertical-align: text-bottom;
+    animation: blink 1.1s step-end infinite;
   }
+  @keyframes blink { 50% { opacity: 0; } }
 
-  /* ══════════════════════════════
-     CARD 2 — Spark Actions
-  ══════════════════════════════ */
+  /* ══ CARD 2 — Actions ══ */
   .spark-card { padding: 20px; }
-
   .card-header {
     display: flex;
     align-items: center;
@@ -187,7 +171,6 @@
     border-radius: 6px;
     letter-spacing: 0.04em;
   }
-
   .search-bar {
     display: flex;
     align-items: center;
@@ -201,9 +184,7 @@
   }
   .search-icon { color: var(--text-dim); flex-shrink: 0; }
   .search-input {
-    background: none;
-    border: none;
-    outline: none;
+    background: none; border: none; outline: none;
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     color: var(--text-primary);
@@ -219,9 +200,7 @@
     flex-shrink: 0;
     font-family: 'JetBrains Mono', monospace;
   }
-
   .action-list { display: flex; flex-direction: column; gap: 4px; }
-
   .action-item {
     display: flex;
     align-items: center;
@@ -234,10 +213,9 @@
   }
   .action-item:hover { background: rgba(255,255,255,0.04); }
   .action-item.active {
-    background: #0f2a28;
-    border-color: rgba(45,212,191,0.2);
+    background: #200d1c;
+    border-color: rgba(244,114,182,0.22);
   }
-
   .action-icon {
     width: 32px; height: 32px;
     border-radius: 8px;
@@ -247,23 +225,12 @@
     color: var(--text-secondary);
   }
   .action-item.active .action-icon {
-    background: rgba(45,212,191,0.12);
-    color: var(--teal);
+    background: rgba(244,114,182,0.12);
+    color: var(--rose);
   }
-
   .action-text { flex: 1; min-width: 0; }
-  .action-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
-    line-height: 1.2;
-  }
-  .action-subtitle {
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-  }
-
+  .action-title { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.2; }
+  .action-subtitle { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
   .action-badge {
     width: 26px; height: 26px;
     border-radius: 7px;
@@ -271,17 +238,14 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 11px;
     font-weight: 600;
-    color: var(--teal);
+    color: var(--rose);
     flex-shrink: 0;
-    border: 1px solid rgba(45,212,191,0.2);
+    border: 1px solid rgba(244,114,182,0.2);
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* ══════════════════════════════
-     CARD 3 — Translate Output
-  ══════════════════════════════ */
+  /* ══ CARD 3 — Output ══ */
   .output-card { padding: 20px; }
-
   .close-btn {
     width: 28px; height: 28px;
     border-radius: 8px;
@@ -294,26 +258,32 @@
   }
   .close-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
-  /* Lang pair & line count bar */
+  /* Tone pill bar */
   .meta-bar {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-bottom: 12px;
+    flex-wrap: wrap;
   }
-  .meta-chip {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  .tone-pill {
     font-size: 11px;
     font-weight: 500;
-    padding: 3px 9px;
+    padding: 3px 10px;
     border-radius: 20px;
-    color: var(--teal);
-    background: var(--teal-glow);
-    border: 1px solid var(--teal-border);
+    cursor: pointer;
+    border: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.04);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
   }
-  .meta-sep { flex: 1; height: 1px; background: var(--border); }
+  .tone-pill.active {
+    color: var(--rose);
+    background: var(--rose-glow);
+    border-color: var(--rose-border);
+  }
+  .meta-sep { flex: 1; height: 1px; background: var(--border); min-width: 8px; }
   .meta-label {
     font-size: 10px;
     color: var(--text-dim);
@@ -333,7 +303,6 @@
     gap: 12px;
     overflow: hidden;
   }
-
   .output-label {
     display: flex;
     align-items: center;
@@ -342,86 +311,56 @@
   .output-dot {
     width: 6px; height: 6px;
     border-radius: 50%;
-    background: var(--teal);
-    box-shadow: 0 0 8px rgba(45,212,191,0.65);
+    background: var(--rose);
+    box-shadow: 0 0 8px rgba(244,114,182,0.65);
   }
   .output-label-text {
     font-size: 11px;
     font-weight: 500;
-    color: var(--teal);
+    color: var(--rose);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  /* Lang selector row */
-  .lang-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .lang-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border-light);
-    border-radius: 8px;
-    padding: 5px 11px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-secondary);
-  }
-  .lang-pill .flag { font-size: 14px; }
-  .lang-pill.target {
-    border-color: rgba(45,212,191,0.25);
-    background: rgba(45,212,191,0.07);
-    color: var(--teal);
-  }
-  .arrow-icon { color: var(--text-dim); }
-
-  /* Translation block */
-  .translation-block {
-    background: rgba(45,212,191,0.05);
-    border: 1px solid var(--teal-border);
-    border-radius: 10px;
-    padding: 12px 14px;
+  /* Before / After comparison */
+  .compare-block {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
-  .t-row {
+  .compare-row {
+    border-radius: 10px;
+    padding: 11px 13px;
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    flex-direction: column;
+    gap: 4px;
   }
-  .t-flag {
-    font-size: 15px;
-    line-height: 1.4;
-    flex-shrink: 0;
-    margin-top: 1px;
+  .compare-row.before {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-light);
   }
-  .t-content { flex: 1; }
-  .t-key {
+  .compare-row.after {
+    background: var(--rose-glow);
+    border: 1px solid var(--rose-border);
+  }
+  .compare-tag {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    color: var(--teal);
-    opacity: 0.7;
+    font-weight: 600;
+    letter-spacing: 0.05em;
     margin-bottom: 2px;
-    letter-spacing: 0.04em;
   }
-  .t-text {
+  .compare-tag.before { color: var(--text-dim); }
+  .compare-tag.after  { color: var(--rose); }
+  .compare-text {
     font-size: 12.5px;
     line-height: 1.6;
-    color: var(--text-primary);
   }
-  .t-divider {
-    height: 1px;
-    background: var(--teal-border);
-    opacity: 0.5;
-  }
+  .compare-text.before { color: var(--text-secondary); }
+  .compare-text.after  { color: var(--text-primary); }
 
-  /* Notes list */
-  .notes-label {
+  /* Changes list */
+  .changes-label {
     font-size: 10px;
     font-weight: 600;
     color: var(--text-dim);
@@ -429,36 +368,41 @@
     text-transform: uppercase;
     margin-bottom: 6px;
   }
-
-  .note-item {
+  .change-item {
     display: flex;
     align-items: flex-start;
     gap: 9px;
     padding: 7px 0;
     border-bottom: 1px solid var(--border);
   }
-  .note-item:last-child { border-bottom: none; }
-
-  .note-index {
+  .change-item:last-child { border-bottom: none; }
+  .change-index {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     font-weight: 600;
-    color: var(--teal);
-    background: rgba(45,212,191,0.09);
-    border: 1px solid rgba(45,212,191,0.18);
+    color: var(--rose);
+    background: rgba(244,114,182,0.09);
+    border: 1px solid rgba(244,114,182,0.18);
     border-radius: 5px;
     width: 20px; height: 18px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     margin-top: 1px;
   }
-
-  .note-text {
+  .change-text {
     font-size: 12px;
     line-height: 1.55;
-    color: #b0e8e4;
+    color: #f0c8de;
   }
-  .note-text strong { color: var(--text-primary); font-weight: 500; }
+  .change-text strong { color: var(--text-primary); font-weight: 500; }
+  .ic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(244,114,182,0.09);
+    color: #f9a8d4;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
 
   /* Footer */
   .output-footer {
@@ -500,20 +444,10 @@
     padding: 0 16px;
   }
   .btn-primary {
-    background: linear-gradient(135deg, var(--btn-primary-start), var(--btn-primary-end));
+    background: linear-gradient(135deg, var(--btn-start), var(--btn-end));
     color: #fff;
     padding: 0 20px;
-    box-shadow: 0 4px 20px rgba(13,148,136,0.4);
-  }
-
-  /* inline code style */
-  .ic {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    background: rgba(45,212,191,0.09);
-    color: #56CCF2;
-    padding: 1px 5px;
-    border-radius: 3px;
+    box-shadow: 0 4px 20px rgba(190,24,93,0.38);
   }
 </style>
 </head>
@@ -522,7 +456,7 @@
 <div class="glow-wrap">
 
   <!-- ═══════════════════════════════════
-       CARD 1 — Code Editor (block selected)
+       CARD 1 — Text Editor (prose selected)
   ════════════════════════════════════ -->
   <div class="card editor-card">
     <div class="editor-panel">
@@ -532,18 +466,32 @@
           <div class="dot dot-yellow"></div>
           <div class="dot dot-green"></div>
         </div>
-        <span class="editor-filename">strings.en.json</span>
-        <span class="editor-encoding">UTF-8</span>
+        <span class="editor-filename">product-update.md</span>
+        <span class="editor-encoding">Markdown</span>
       </div>
 
       <div class="code-area">
         <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div>
         <div class="code-content">
           <code>
-<span class="line"><span class="op">{</span></span>
-<span class="line">  <span class="cm">// ── Onboarding ──────────────</span></span>
-<span class="line">  <span class="sel"><span class="key">"welcome_title"</span><span class="op">:</span> <span class="str">"Welcome back!"</span><span class="op">,</span></span></span>
-<span class="line"><span class="sel"><span class="op">}</span></span></span>
+<span class="line"><span style="color:#7C8CFF;font-weight:600"># Product Update — v2.4</span></span>
+<span class="line"></span>
+<span class="line"><span class="prose">We are pleased to announce the</span></span>
+<span class="line"><span class="sel"><span class="prose">release of version 2.4. This update</span></span></span>
+<span class="line"><span class="sel"><span class="prose">delivers improvements to the dashboard</span></span></span>
+<span class="line"><span class="sel"><span class="prose">performance and resolves several issues</span></span></span>
+<span class="line"><span class="sel"><span class="prose">that were previously reported by users.</span></span></span>
+<span class="line"><span class="sel"><span class="prose">Additionally, we have introduced a new</span></span></span>
+<span class="line"><span class="sel"><span class="prose">export feature that facilitates data</span></span></span>
+<span class="line"><span class="sel"><span class="prose">retrieval in CSV and JSON formats.</span><span class="cursor"></span></span></span>
+<span class="line"></span>
+<span class="line"><span class="prose">We appreciate your continued support</span></span>
+<span class="line"><span class="prose">and feedback.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#7C8CFF;font-weight:600">## What's next</span></span>
+<span class="line"></span>
+<span class="line"><span class="prose">The team will continue to work on</span></span>
+<span class="line"><span class="prose">upcoming features for the Q3 roadmap.</span></span>
           </code>
         </div>
       </div>
@@ -551,7 +499,7 @@
   </div>
 
   <!-- ═══════════════════════════════════
-       CARD 2 — Spark Actions (Translate active)
+       CARD 2 — Spark Actions (Change Tone active)
   ════════════════════════════════════ -->
   <div class="card spark-card">
     <div class="card-header">
@@ -578,9 +526,7 @@
             <circle cx="12" cy="11" r="2.2" stroke="currentColor" stroke-width="1.3"/>
           </svg>
         </div>
-        <div class="action-text">
-          <div class="action-title">Explain Code</div>
-        </div>
+        <div class="action-text"><div class="action-title">Explain Code</div></div>
       </div>
 
       <!-- Rewrite -->
@@ -593,23 +539,7 @@
             <polyline points="5,12 3,10.2 4.5,8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <div class="action-text">
-          <div class="action-title">Rewrite</div>
-        </div>
-      </div>
-
-      <!-- Fix Grammar -->
-      <div class="action-item">
-        <div class="action-icon">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-            <path d="M5 10L7.5 4L10 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="5.8" y1="8.2" x2="9.2" y2="8.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <path d="M11.5 11.5l1.5 1.5M13 11.5l-1.5 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="action-text">
-          <div class="action-title">Fix Grammar</div>
-        </div>
+        <div class="action-text"><div class="action-title">Rewrite</div></div>
       </div>
 
       <!-- Summarize -->
@@ -620,40 +550,51 @@
             <path d="M5 5.5h5M5 7.5h5M5 9.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
           </svg>
         </div>
-        <div class="action-text">
-          <div class="action-title">Summarize</div>
-        </div>
+        <div class="action-text"><div class="action-title">Summarize</div></div>
       </div>
 
-      <!-- Translate — ACTIVE -->
-      <div class="action-item active">
+      <!-- Translate -->
+      <div class="action-item">
         <div class="action-icon">
-          <!-- Globe / translate icon -->
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" stroke-width="1.3"/>
             <path d="M7.5 2C7.5 2 5.5 4.5 5.5 7.5s2 5.5 2 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
             <path d="M7.5 2c0 0 2 2.5 2 5.5s-2 5.5-2 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
             <line x1="2" y1="7.5" x2="13" y2="7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="2.8" y1="5" x2="12.2" y2="5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="1.5 1"/>
-            <line x1="2.8" y1="10" x2="12.2" y2="10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="1.5 1"/>
+          </svg>
+        </div>
+        <div class="action-text"><div class="action-title">Translate</div></div>
+      </div>
+
+      <!-- Change Tone — ACTIVE -->
+      <div class="action-item active">
+        <div class="action-icon">
+          <!-- Waveform / tone icon -->
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <path d="M1 7.5h1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M3.5 5v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M6 3.5v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M8.5 5.5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M11 4v7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M13.5 7.5H12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
           </svg>
         </div>
         <div class="action-text">
-          <div class="action-title">Translate</div>
-          <div class="action-subtitle">Convert selected strings to French</div>
+          <div class="action-title">Change Tone</div>
+          <div class="action-subtitle">Rewrite in a different voice</div>
         </div>
-        <div class="action-badge">T</div>
+        <div class="action-badge">C</div>
       </div>
 
     </div>
   </div>
 
   <!-- ═══════════════════════════════════
-       CARD 3 — Translate Output
+       CARD 3 — Change Tone Output
   ════════════════════════════════════ -->
   <div class="card output-card">
     <div class="card-header">
-      <span class="card-title">Translate</span>
+      <span class="card-title">Change Tone</span>
       <div class="close-btn">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -662,66 +603,52 @@
       </div>
     </div>
 
-    <!-- Meta bar -->
+    <!-- Tone pill selector -->
     <div class="meta-bar">
-      <div class="meta-chip">
-        <span style="font-size:11px">🇺🇸</span>
-        EN
-      </div>
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:var(--text-dim);flex-shrink:0">
-        <path d="M3 7h8M8 4.5l2.5 2.5L8 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="meta-chip" style="color:var(--teal);background:var(--teal-glow);border-color:var(--teal-border)">
-        <span style="font-size:11px">🇫🇷</span>
-        FR
-      </div>
+      <div class="tone-pill">Formal</div>
+      <div class="tone-pill active">Friendly</div>
+      <div class="tone-pill">Confident</div>
+      <div class="tone-pill">Casual</div>
       <div class="meta-sep"></div>
-      <div class="meta-label">13 keys</div>
+      <div class="meta-label">7 lines</div>
     </div>
 
     <!-- Output box -->
     <div class="output-box">
       <div class="output-label">
         <div class="output-dot"></div>
-        <span class="output-label-text">Translation</span>
+        <span class="output-label-text">Rewritten</span>
       </div>
 
-      <!-- Translated block preview -->
-      <div class="translation-block">
-        <div class="t-row">
-          <span class="t-flag">🇺🇸</span>
-          <div class="t-content">
-            <div class="t-key">welcome_title</div>
-            <div class="t-text" style="color:var(--text-secondary)">Welcome back!</div>
-          </div>
+      <!-- Before / After -->
+      <div class="compare-block">
+        <div class="compare-row before">
+          <div class="compare-tag before">BEFORE · Formal</div>
+          <div class="compare-text before">This update delivers improvements to dashboard performance and resolves several issues previously reported by users.</div>
         </div>
-        <div class="t-divider"></div>
-        <div class="t-row">
-          <span class="t-flag">🇫🇷</span>
-          <div class="t-content">
-            <div class="t-key" style="color:var(--teal)">welcome_title</div>
-            <div class="t-text">Bienvenue à nouveau&nbsp;!</div>
-          </div>
+        <div class="compare-row after">
+          <div class="compare-tag after">AFTER · Friendly</div>
+          <div class="compare-text after">We've sped up the dashboard and squashed those bugs you flagged — plus a shiny new export feature that lets you pull data as CSV or JSON. 🎉</div>
         </div>
       </div>
 
-      <!-- Translator notes -->
+      <!-- What changed -->
       <div>
-        <div class="notes-label">Translator Notes</div>
+        <div class="changes-label">What Changed</div>
 
-        <div class="note-item">
-          <div class="note-index">1</div>
-          <div class="note-text"><strong>Formal register</strong> — used <span class="ic">vous</span>-style phrasing throughout to match a professional SaaS tone.</div>
+        <div class="change-item">
+          <div class="change-index">1</div>
+          <div class="change-text"><strong>Active voice</strong> — <span class="ic">we've sped up</span> replaces passive <span class="ic">improvements were delivered</span> to feel more direct.</div>
         </div>
 
-        <div class="note-item">
-          <div class="note-index">2</div>
-          <div class="note-text"><strong>Punctuation</strong> — French spacing rules applied; non-breaking space added before <span class="ic">!</span> and <span class="ic">?</span> marks.</div>
+        <div class="change-item">
+          <div class="change-index">2</div>
+          <div class="change-text"><strong>Warmer word choice</strong> — <span class="ic">squashed those bugs</span> acknowledges user pain with empathy and a light touch.</div>
         </div>
 
-        <div class="note-item">
-          <div class="note-index">3</div>
-          <div class="note-text"><strong>13 / 13 keys</strong> translated. No interpolation variables or plurals detected in selection.</div>
+        <div class="change-item">
+          <div class="change-index">3</div>
+          <div class="change-text"><strong>Energy marker</strong> — emoji added at sentence end to signal celebration without altering the core message.</div>
         </div>
       </div>
     </div>
