@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spark — Fix Grammar</title>
+<title>Spark — Summarize</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,20 +20,14 @@
     --text-dim: #5A6285;
     --purple: #7C8CFF;
     --cyan: #56CCF2;
-    --green-code: #27AE60;
+    --amber: #F2C94C;
+    --amber-glow: rgba(242,201,76,0.15);
+    --amber-border: rgba(242,201,76,0.25);
     --badge-bg: #2A3566;
     --glow: rgba(108,99,255,0.18);
     --btn-primary-start: #6C63FF;
     --btn-primary-end: #8B85FF;
     --shadow: 0 24px 60px rgba(0,0,0,0.38), 0 8px 24px rgba(0,0,0,0.22);
-
-    /* Grammar diff colors */
-    --del-bg: rgba(235,87,87,0.12);
-    --del-text: #EB5757;
-    --del-line: rgba(235,87,87,0.35);
-    --ins-bg: rgba(39,174,96,0.12);
-    --ins-text: #6FCF97;
-    --ins-line: rgba(39,174,96,0.35);
   }
 
   body {
@@ -146,7 +140,6 @@
   .code-content { flex: 1; overflow: hidden; }
   code .line { display: block; white-space: pre; }
 
-  /* Syntax tokens */
   .kw   { color: #7C8CFF; }
   .fn   { color: #56CCF2; }
   .var  { color: #E6E9F5; }
@@ -155,11 +148,8 @@
   .op   { color: #9AA4C7; }
   .type { color: #F2994A; }
   .tag  { color: #EB5757; }
-  .attr { color: #56CCF2; }
-  .pun  { color: #9AA4C7; }
-
-  /* selected text highlight */
-  .sel {
+  .num  { color: #F2C94C; }
+  .sel  {
     background: rgba(124,140,255,0.18);
     border-radius: 2px;
     padding: 0 1px;
@@ -282,7 +272,7 @@
   }
 
   /* ══════════════════════════════
-     CARD 3 — Fix Grammar Output
+     CARD 3 — Summarize Output
   ══════════════════════════════ */
   .output-card { padding: 20px; }
 
@@ -298,14 +288,14 @@
   }
   .close-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
-  /* Diff stats bar */
-  .diff-stats {
+  /* Reading time & word count bar */
+  .meta-bar {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 12px;
   }
-  .diff-pill {
+  .meta-chip {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -313,29 +303,18 @@
     font-weight: 500;
     padding: 3px 9px;
     border-radius: 20px;
+    color: var(--amber);
+    background: var(--amber-glow);
+    border: 1px solid var(--amber-border);
   }
-  .diff-pill.del {
-    background: var(--del-bg);
-    color: var(--del-text);
-    border: 1px solid var(--del-line);
-  }
-  .diff-pill.ins {
-    background: var(--ins-bg);
-    color: var(--ins-text);
-    border: 1px solid var(--ins-line);
-  }
-  .diff-sep {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .diff-count {
+  .meta-sep { flex: 1; height: 1px; background: var(--border); }
+  .meta-label {
     font-size: 10px;
     color: var(--text-dim);
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* Output text box */
+  /* Output box */
   .output-box {
     background: var(--inner);
     border: 1px solid var(--border-light);
@@ -353,100 +332,90 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-bottom: 4px;
   }
   .output-dot {
     width: 6px; height: 6px;
     border-radius: 50%;
-    background: #6FCF97;
-    box-shadow: 0 0 8px rgba(111,207,151,0.7);
+    background: var(--amber);
+    box-shadow: 0 0 8px rgba(242,201,76,0.7);
   }
   .output-label-text {
     font-size: 11px;
     font-weight: 500;
-    color: #6FCF97;
+    color: var(--amber);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  /* Diff blocks */
-  .diff-block {
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-
-  .diff-line {
+  /* TL;DR hero */
+  .tldr-block {
+    background: rgba(242,201,76,0.06);
+    border: 1px solid var(--amber-border);
+    border-radius: 10px;
+    padding: 12px 14px;
     display: flex;
-    align-items: flex-start;
     gap: 10px;
-    padding: 6px 12px;
-    font-size: 12.5px;
-    line-height: 1.6;
-    font-family: 'DM Sans', sans-serif;
+    align-items: flex-start;
   }
-  .diff-line + .diff-line { border-top: 1px solid rgba(255,255,255,0.03); }
-
-  .diff-line.removed {
-    background: var(--del-bg);
-    color: var(--del-text);
-    text-decoration: line-through;
-    text-decoration-color: rgba(235,87,87,0.5);
-  }
-  .diff-line.added {
-    background: var(--ins-bg);
-    color: var(--ins-text);
-  }
-  .diff-line.context {
-    background: transparent;
-    color: var(--text-secondary);
-  }
-
-  .diff-gutter {
+  .tldr-tag {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    opacity: 0.5;
-    flex-shrink: 0;
-    width: 14px;
-    text-align: center;
-    margin-top: 2px;
     font-weight: 600;
+    color: var(--amber);
+    background: rgba(242,201,76,0.12);
+    border: 1px solid var(--amber-border);
+    border-radius: 5px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    letter-spacing: 0.05em;
+  }
+  .tldr-text {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-weight: 400;
   }
 
-  .diff-text { flex: 1; }
-
-  /* inline word diff */
-  .word-del {
-    background: rgba(235,87,87,0.25);
-    border-radius: 3px;
-    padding: 0 3px;
-    text-decoration: line-through;
-    text-decoration-color: rgba(235,87,87,0.7);
-  }
-  .word-ins {
-    background: rgba(39,174,96,0.25);
-    border-radius: 3px;
-    padding: 0 3px;
-    font-weight: 500;
+  /* Key points list */
+  .points-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
   }
 
-  /* Summary note */
-  .grammar-note {
+  .point-item {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
-    background: rgba(124,140,255,0.06);
-    border: 1px solid rgba(124,140,255,0.12);
-    border-radius: 8px;
-    padding: 10px 12px;
+    gap: 9px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
   }
-  .grammar-note-icon { flex-shrink: 0; color: var(--purple); margin-top: 1px; }
-  .grammar-note-text {
+  .point-item:last-child { border-bottom: none; }
+
+  .point-index {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--purple);
+    background: rgba(124,140,255,0.1);
+    border: 1px solid rgba(124,140,255,0.18);
+    border-radius: 5px;
+    width: 20px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .point-text {
     font-size: 12px;
     line-height: 1.55;
-    color: var(--text-secondary);
+    color: #C9D1FF;
   }
-  .grammar-note-text strong { color: var(--text-primary); font-weight: 500; }
+  .point-text strong { color: var(--text-primary); font-weight: 500; }
 
   /* Footer */
   .output-footer {
@@ -466,9 +435,7 @@
     flex-shrink: 0;
   }
   .icon-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
-
   .spacer { flex: 1; }
-
   .btn {
     height: 40px;
     border-radius: 10px;
@@ -502,7 +469,7 @@
 <div class="glow-wrap">
 
   <!-- ═══════════════════════════════════
-       CARD 1 — Code Editor (text selected)
+       CARD 1 — Code Editor (block selected)
   ════════════════════════════════════ -->
   <div class="card editor-card">
     <div class="editor-panel">
@@ -512,7 +479,7 @@
           <div class="dot dot-yellow"></div>
           <div class="dot dot-green"></div>
         </div>
-        <span class="editor-filename">readme-draft.md</span>
+        <span class="editor-filename">useDataFetcher.ts</span>
         <span class="editor-encoding">UTF-8</span>
       </div>
 
@@ -520,27 +487,26 @@
         <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div>
         <div class="code-content">
           <code>
-<span class="line"><span class="kw">#</span> <span class="var">Spark — AI Code Assistant</span></span>
+<span class="line"><span class="kw">import</span> <span class="op">{</span> <span class="fn">useState</span><span class="op">,</span> <span class="fn">useEffect</span><span class="op">,</span> <span class="fn">useRef</span> <span class="op">}</span></span>
+<span class="line"><span class="kw">from</span> <span class="str">'react'</span><span class="op">;</span></span>
 <span class="line"></span>
-<span class="line"><span class="cm">## Overview</span></span>
+<span class="line"><span class="sel"><span class="kw">export function</span> <span class="fn">useDataFetcher</span><span class="op">&lt;</span><span class="type">T</span><span class="op">&gt;(</span></span></span>
+<span class="line"><span class="sel">  <span class="var">url</span><span class="op">:</span> <span class="type">string</span><span class="op">,</span> <span class="var">deps</span><span class="op">:</span> <span class="type">unknown</span><span class="op">[]</span></span></span>
+<span class="line"><span class="sel"><span class="op">) {</span></span></span>
+<span class="line"><span class="sel">  <span class="kw">const</span> <span class="op">[</span><span class="var">data</span><span class="op">,</span> <span class="fn">setData</span><span class="op">]</span> <span class="op">=</span> <span class="fn">useState</span><span class="op">&lt;</span><span class="type">T</span> <span class="op">|</span> <span class="kw">null</span><span class="op">&gt;(</span><span class="kw">null</span><span class="op">);</span></span></span>
+<span class="line"><span class="sel">  <span class="kw">const</span> <span class="op">[</span><span class="var">loading</span><span class="op">,</span> <span class="fn">setLoading</span><span class="op">]</span> <span class="op">=</span> <span class="fn">useState</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span></span>
+<span class="line"><span class="sel">  <span class="kw">const</span> <span class="op">[</span><span class="var">error</span><span class="op">,</span> <span class="fn">setError</span><span class="op">]</span> <span class="op">=</span> <span class="fn">useState</span><span class="op">&lt;</span><span class="type">Error</span> <span class="op">|</span> <span class="kw">null</span><span class="op">&gt;(</span><span class="kw">null</span><span class="op">);</span></span></span>
+<span class="line"><span class="sel">  <span class="kw">const</span> <span class="var">abortRef</span> <span class="op">=</span> <span class="fn">useRef</span><span class="op">&lt;</span><span class="type">AbortController</span><span class="op">&gt;();</span></span></span>
 <span class="line"></span>
-<span class="line"><span class="sel">Spark are a powerful tool that help</span></span>
-<span class="line"><span class="sel">developer to write better code. It</span></span>
-<span class="line"><span class="sel">use ai to analysing your selection</span></span>
-<span class="line"><span class="sel">and give suggestion for improvement.</span></span>
+<span class="line"><span class="sel">  <span class="fn">useEffect</span><span class="op">(() =&gt; {</span></span></span>
+<span class="line"><span class="sel">    <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span><span class="op">?.</span><span class="fn">abort</span><span class="op">();</span></span></span>
+<span class="line"><span class="sel">    <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span> <span class="op">=</span> <span class="kw">new</span> <span class="type">AbortController</span><span class="op">();</span></span></span>
+<span class="line"><span class="sel">    <span class="fn">fetchData</span><span class="op">(</span><span class="var">url</span><span class="op">,</span> <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span><span class="op">);</span></span></span>
+<span class="line"><span class="sel">    <span class="kw">return</span> <span class="op">() =&gt;</span> <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span><span class="op">?.</span><span class="fn">abort</span><span class="op">();</span></span></span>
+<span class="line"><span class="sel">  <span class="op">},</span> <span class="op">[</span><span class="var">url</span><span class="op">,</span> <span class="op">...</span><span class="var">deps</span><span class="op">]);</span></span></span>
 <span class="line"></span>
-<span class="line"><span class="cm">## Features</span></span>
-<span class="line"></span>
-<span class="line"><span class="var">- Explain Code</span></span>
-<span class="line"><span class="var">- Rewrite Selection</span></span>
-<span class="line"><span class="kw">- </span><span class="sel">Fix Grammar and Spelling</span></span>
-<span class="line"><span class="var">- Ask AI anything</span></span>
-<span class="line"><span class="var">- Summarize Block</span></span>
-<span class="line"></span>
-<span class="line"><span class="cm">## Getting Started</span></span>
-<span class="line"></span>
-<span class="line"><span class="var">Install via npm:</span></span>
-<span class="line"><span class="str">`npm install spark-ai`</span></span>
+<span class="line">  <span class="kw">return</span> <span class="op">{</span> <span class="var">data</span><span class="op">,</span> <span class="var">loading</span><span class="op">,</span> <span class="var">error</span> <span class="op">};</span></span>
+<span class="line"><span class="op">}</span></span>
           </code>
         </div>
       </div>
@@ -548,7 +514,7 @@
   </div>
 
   <!-- ═══════════════════════════════════
-       CARD 2 — Spark Actions (Fix Grammar active)
+       CARD 2 — Spark Actions (Summarize active)
   ════════════════════════════════════ -->
   <div class="card spark-card">
     <div class="card-header">
@@ -595,8 +561,8 @@
         </div>
       </div>
 
-      <!-- Fix Grammar — ACTIVE -->
-      <div class="action-item active">
+      <!-- Fix Grammar -->
+      <div class="action-item">
         <div class="action-icon">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <path d="M5 10L7.5 4L10 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -606,9 +572,7 @@
         </div>
         <div class="action-text">
           <div class="action-title">Fix Grammar</div>
-          <div class="action-subtitle">Correct grammar &amp; spelling</div>
         </div>
-        <div class="action-badge">G</div>
       </div>
 
       <!-- Ask AI -->
@@ -625,8 +589,8 @@
         </div>
       </div>
 
-      <!-- Summarize -->
-      <div class="action-item">
+      <!-- Summarize — ACTIVE -->
+      <div class="action-item active">
         <div class="action-icon">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <rect x="2" y="2" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
@@ -635,18 +599,20 @@
         </div>
         <div class="action-text">
           <div class="action-title">Summarize</div>
+          <div class="action-subtitle">Condense selected block</div>
         </div>
+        <div class="action-badge">S</div>
       </div>
 
     </div>
   </div>
 
   <!-- ═══════════════════════════════════
-       CARD 3 — Fix Grammar Output
+       CARD 3 — Summarize Output
   ════════════════════════════════════ -->
   <div class="card output-card">
     <div class="card-header">
-      <span class="card-title">Fix Grammar</span>
+      <span class="card-title">Summarize</span>
       <div class="close-btn">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -655,73 +621,55 @@
       </div>
     </div>
 
-    <!-- Stats bar -->
-    <div class="diff-stats">
-      <div class="diff-pill del">
+    <!-- Meta bar -->
+    <div class="meta-bar">
+      <div class="meta-chip">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <line x1="2" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.3"/>
+          <polyline points="5,3 5,5.5 6.5,6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        4 removed
+        ~30s read
       </div>
-      <div class="diff-pill ins">
+      <div class="meta-chip">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <line x1="5" y1="2" x2="5" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          <line x1="2" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M1.5 3h7M1.5 5h7M1.5 7h4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
-        4 added
+        16 lines → 3 points
       </div>
-      <div class="diff-sep"></div>
-      <div class="diff-count">4 fixes</div>
+      <div class="meta-sep"></div>
+      <div class="meta-label">useDataFetcher.ts</div>
     </div>
 
-    <!-- Diff output box -->
+    <!-- Output box -->
     <div class="output-box">
       <div class="output-label">
         <div class="output-dot"></div>
-        <span class="output-label-text">Corrected</span>
+        <span class="output-label-text">Summary</span>
       </div>
 
-      <!-- Diff block -->
-      <div class="diff-block">
-        <div class="diff-line removed">
-          <span class="diff-gutter">−</span>
-          <span class="diff-text">Spark <span class="word-del">are</span> a powerful tool that <span class="word-del">help</span></span>
-        </div>
-        <div class="diff-line added">
-          <span class="diff-gutter">+</span>
-          <span class="diff-text">Spark <span class="word-ins">is</span> a powerful tool that <span class="word-ins">helps</span></span>
-        </div>
-        <div class="diff-line removed">
-          <span class="diff-gutter">−</span>
-          <span class="diff-text"><span class="word-del">developer</span> to write better code. It</span>
-        </div>
-        <div class="diff-line added">
-          <span class="diff-gutter">+</span>
-          <span class="diff-text"><span class="word-ins">developers</span> to write better code. It</span>
-        </div>
-        <div class="diff-line removed">
-          <span class="diff-gutter">−</span>
-          <span class="diff-text"><span class="word-del">use ai</span> to <span class="word-del">analysing</span> your selection</span>
-        </div>
-        <div class="diff-line added">
-          <span class="diff-gutter">+</span>
-          <span class="diff-text"><span class="word-ins">uses AI</span> to <span class="word-ins">analyze</span> your selection</span>
-        </div>
-        <div class="diff-line context">
-          <span class="diff-gutter">·</span>
-          <span class="diff-text">and give suggestions for improvement.</span>
-        </div>
+      <!-- TL;DR -->
+      <div class="tldr-block">
+        <span class="tldr-tag">TL;DR</span>
+        <span class="tldr-text">A generic React hook that fetches data from a URL, tracks loading and error states, and automatically cancels in-flight requests on re-render or unmount.</span>
       </div>
 
-      <!-- Explanatory note -->
-      <div class="grammar-note">
-        <svg class="grammar-note-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
-          <line x1="7" y1="6" x2="7" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          <circle cx="7" cy="4.2" r=".7" fill="currentColor"/>
-        </svg>
-        <div class="grammar-note-text">
-          Fixed <strong>subject-verb agreement</strong>, corrected <strong>noun plurality</strong>, and updated <strong>verb tense</strong> for consistent present-tense flow.
+      <!-- Key points -->
+      <div>
+        <div class="points-label">Key Points</div>
+
+        <div class="point-item">
+          <div class="point-index">1</div>
+          <div class="point-text"><strong>Generic hook</strong> — accepts a typed URL and dependency array, returning <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(124,140,255,0.1);color:#56CCF2;padding:1px 5px;border-radius:3px;">{ data, loading, error }</code>.</div>
+        </div>
+
+        <div class="point-item">
+          <div class="point-index">2</div>
+          <div class="point-text"><strong>Abort control</strong> — uses <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(124,140,255,0.1);color:#56CCF2;padding:1px 5px;border-radius:3px;">AbortController</code> via a ref to cancel stale requests before each new fetch.</div>
+        </div>
+
+        <div class="point-item">
+          <div class="point-index">3</div>
+          <div class="point-text"><strong>Cleanup on unmount</strong> — the <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(124,140,255,0.1);color:#56CCF2;padding:1px 5px;border-radius:3px;">useEffect</code> teardown aborts any pending request, preventing memory leaks.</div>
         </div>
       </div>
     </div>
@@ -740,9 +688,7 @@
           <rect x="11.5" y="2" width="2" height="7" rx=".5" stroke="currentColor" stroke-width="1.3"/>
         </svg>
       </div>
-
       <div class="spacer"></div>
-
       <button class="btn btn-secondary">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
           <rect x="1" y="3.5" width="8" height="8.5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
