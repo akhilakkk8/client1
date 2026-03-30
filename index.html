@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spark — Summarize</title>
+<title>Spark — Translate</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,13 +20,14 @@
     --text-dim: #5A6285;
     --purple: #7C8CFF;
     --cyan: #56CCF2;
-    --amber: #F2C94C;
-    --amber-glow: rgba(242,201,76,0.15);
-    --amber-border: rgba(242,201,76,0.25);
-    --badge-bg: #2A3566;
-    --glow: rgba(108,99,255,0.18);
-    --btn-primary-start: #6C63FF;
-    --btn-primary-end: #8B85FF;
+    --green: #4ADE80;
+    --teal: #2DD4BF;
+    --teal-glow: rgba(45,212,191,0.13);
+    --teal-border: rgba(45,212,191,0.22);
+    --badge-bg: #1E3A38;
+    --glow: rgba(45,212,191,0.13);
+    --btn-primary-start: #0D9488;
+    --btn-primary-end: #14B8A6;
     --shadow: 0 24px 60px rgba(0,0,0,0.38), 0 8px 24px rgba(0,0,0,0.22);
   }
 
@@ -143,16 +144,21 @@
   .kw   { color: #7C8CFF; }
   .fn   { color: #56CCF2; }
   .var  { color: #E6E9F5; }
-  .str  { color: #27AE60; }
+  .str  { color: #4ADE80; }
+  .str-sel { color: #4ADE80; }
   .cm   { color: #4A5280; font-style: italic; }
   .op   { color: #9AA4C7; }
   .type { color: #F2994A; }
-  .tag  { color: #EB5757; }
+  .key  { color: #2DD4BF; }
   .num  { color: #F2C94C; }
   .sel  {
-    background: rgba(124,140,255,0.18);
+    background: rgba(45,212,191,0.12);
     border-radius: 2px;
     padding: 0 1px;
+  }
+  .flag {
+    font-size: 13px;
+    line-height: 1;
   }
 
   /* ══════════════════════════════
@@ -228,8 +234,8 @@
   }
   .action-item:hover { background: rgba(255,255,255,0.04); }
   .action-item.active {
-    background: var(--active);
-    border-color: rgba(124,140,255,0.2);
+    background: #0f2a28;
+    border-color: rgba(45,212,191,0.2);
   }
 
   .action-icon {
@@ -241,8 +247,8 @@
     color: var(--text-secondary);
   }
   .action-item.active .action-icon {
-    background: rgba(124,140,255,0.15);
-    color: var(--purple);
+    background: rgba(45,212,191,0.12);
+    color: var(--teal);
   }
 
   .action-text { flex: 1; min-width: 0; }
@@ -265,14 +271,14 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 11px;
     font-weight: 600;
-    color: var(--purple);
+    color: var(--teal);
     flex-shrink: 0;
-    border: 1px solid rgba(124,140,255,0.2);
+    border: 1px solid rgba(45,212,191,0.2);
     font-family: 'JetBrains Mono', monospace;
   }
 
   /* ══════════════════════════════
-     CARD 3 — Summarize Output
+     CARD 3 — Translate Output
   ══════════════════════════════ */
   .output-card { padding: 20px; }
 
@@ -288,7 +294,7 @@
   }
   .close-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
-  /* Reading time & word count bar */
+  /* Lang pair & line count bar */
   .meta-bar {
     display: flex;
     align-items: center;
@@ -303,9 +309,9 @@
     font-weight: 500;
     padding: 3px 9px;
     border-radius: 20px;
-    color: var(--amber);
-    background: var(--amber-glow);
-    border: 1px solid var(--amber-border);
+    color: var(--teal);
+    background: var(--teal-glow);
+    border: 1px solid var(--teal-border);
   }
   .meta-sep { flex: 1; height: 1px; background: var(--border); }
   .meta-label {
@@ -336,49 +342,86 @@
   .output-dot {
     width: 6px; height: 6px;
     border-radius: 50%;
-    background: var(--amber);
-    box-shadow: 0 0 8px rgba(242,201,76,0.7);
+    background: var(--teal);
+    box-shadow: 0 0 8px rgba(45,212,191,0.65);
   }
   .output-label-text {
     font-size: 11px;
     font-weight: 500;
-    color: var(--amber);
+    color: var(--teal);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  /* TL;DR hero */
-  .tldr-block {
-    background: rgba(242,201,76,0.06);
-    border: 1px solid var(--amber-border);
+  /* Lang selector row */
+  .lang-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lang-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .lang-pill .flag { font-size: 14px; }
+  .lang-pill.target {
+    border-color: rgba(45,212,191,0.25);
+    background: rgba(45,212,191,0.07);
+    color: var(--teal);
+  }
+  .arrow-icon { color: var(--text-dim); }
+
+  /* Translation block */
+  .translation-block {
+    background: rgba(45,212,191,0.05);
+    border: 1px solid var(--teal-border);
     border-radius: 10px;
     padding: 12px 14px;
     display: flex;
-    gap: 10px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
   }
-  .tldr-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--amber);
-    background: rgba(242,201,76,0.12);
-    border: 1px solid var(--amber-border);
-    border-radius: 5px;
-    padding: 2px 7px;
+  .t-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .t-flag {
+    font-size: 15px;
+    line-height: 1.4;
     flex-shrink: 0;
     margin-top: 1px;
-    letter-spacing: 0.05em;
   }
-  .tldr-text {
+  .t-content { flex: 1; }
+  .t-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--teal);
+    opacity: 0.7;
+    margin-bottom: 2px;
+    letter-spacing: 0.04em;
+  }
+  .t-text {
     font-size: 12.5px;
     line-height: 1.6;
     color: var(--text-primary);
-    font-weight: 400;
+  }
+  .t-divider {
+    height: 1px;
+    background: var(--teal-border);
+    opacity: 0.5;
   }
 
-  /* Key points list */
-  .points-label {
+  /* Notes list */
+  .notes-label {
     font-size: 10px;
     font-weight: 600;
     color: var(--text-dim);
@@ -387,22 +430,22 @@
     margin-bottom: 6px;
   }
 
-  .point-item {
+  .note-item {
     display: flex;
     align-items: flex-start;
     gap: 9px;
     padding: 7px 0;
     border-bottom: 1px solid var(--border);
   }
-  .point-item:last-child { border-bottom: none; }
+  .note-item:last-child { border-bottom: none; }
 
-  .point-index {
+  .note-index {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     font-weight: 600;
-    color: var(--purple);
-    background: rgba(124,140,255,0.1);
-    border: 1px solid rgba(124,140,255,0.18);
+    color: var(--teal);
+    background: rgba(45,212,191,0.09);
+    border: 1px solid rgba(45,212,191,0.18);
     border-radius: 5px;
     width: 20px; height: 18px;
     display: flex; align-items: center; justify-content: center;
@@ -410,12 +453,12 @@
     margin-top: 1px;
   }
 
-  .point-text {
+  .note-text {
     font-size: 12px;
     line-height: 1.55;
-    color: #C9D1FF;
+    color: #b0e8e4;
   }
-  .point-text strong { color: var(--text-primary); font-weight: 500; }
+  .note-text strong { color: var(--text-primary); font-weight: 500; }
 
   /* Footer */
   .output-footer {
@@ -460,7 +503,17 @@
     background: linear-gradient(135deg, var(--btn-primary-start), var(--btn-primary-end));
     color: #fff;
     padding: 0 20px;
-    box-shadow: 0 4px 20px rgba(108,99,255,0.35);
+    box-shadow: 0 4px 20px rgba(13,148,136,0.4);
+  }
+
+  /* inline code style */
+  .ic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(45,212,191,0.09);
+    color: #56CCF2;
+    padding: 1px 5px;
+    border-radius: 3px;
   }
 </style>
 </head>
@@ -479,7 +532,7 @@
           <div class="dot dot-yellow"></div>
           <div class="dot dot-green"></div>
         </div>
-        <span class="editor-filename">useDataFetcher.ts</span>
+        <span class="editor-filename">strings.en.json</span>
         <span class="editor-encoding">UTF-8</span>
       </div>
 
@@ -487,26 +540,24 @@
         <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div>
         <div class="code-content">
           <code>
-<span class="line"><span class="kw">import</span> <span class="op">{</span> <span class="fn">useState</span><span class="op">,</span> <span class="fn">useEffect</span><span class="op">,</span> <span class="fn">useRef</span> <span class="op">}</span></span>
-<span class="line"><span class="kw">from</span> <span class="str">'react'</span><span class="op">;</span></span>
+<span class="line"><span class="op">{</span></span>
+<span class="line">  <span class="cm">// ── Onboarding ──────────────</span></span>
+<span class="line">  <span class="sel"><span class="key">"welcome_title"</span><span class="op">:</span> <span class="str">"Welcome back!"</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"welcome_sub"</span><span class="op">:</span>   <span class="str">"Pick up right where you left off."</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"cta_start"</span><span class="op">:</span>     <span class="str">"Get started"</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"cta_explore"</span><span class="op">:</span>   <span class="str">"Explore features"</span><span class="op">,</span></span></span>
 <span class="line"></span>
-<span class="line"><span class="sel"><span class="kw">export function</span> <span class="fn">useDataFetcher</span><span class="op">&lt;</span><span class="type">T</span><span class="op">&gt;(</span></span></span>
-<span class="line"><span class="sel">  <span class="var">url</span><span class="op">:</span> <span class="type">string</span><span class="op">,</span> <span class="var">deps</span><span class="op">:</span> <span class="type">unknown</span><span class="op">[]</span></span></span>
-<span class="line"><span class="sel"><span class="op">) {</span></span></span>
-<span class="line"><span class="sel">  <span class="kw">const</span> <span class="op">[</span><span class="var">data</span><span class="op">,</span> <span class="fn">setData</span><span class="op">]</span> <span class="op">=</span> <span class="fn">useState</span><span class="op">&lt;</span><span class="type">T</span> <span class="op">|</span> <span class="kw">null</span><span class="op">&gt;(</span><span class="kw">null</span><span class="op">);</span></span></span>
-<span class="line"><span class="sel">  <span class="kw">const</span> <span class="op">[</span><span class="var">loading</span><span class="op">,</span> <span class="fn">setLoading</span><span class="op">]</span> <span class="op">=</span> <span class="fn">useState</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span></span>
-<span class="line"><span class="sel">  <span class="kw">const</span> <span class="op">[</span><span class="var">error</span><span class="op">,</span> <span class="fn">setError</span><span class="op">]</span> <span class="op">=</span> <span class="fn">useState</span><span class="op">&lt;</span><span class="type">Error</span> <span class="op">|</span> <span class="kw">null</span><span class="op">&gt;(</span><span class="kw">null</span><span class="op">);</span></span></span>
-<span class="line"><span class="sel">  <span class="kw">const</span> <span class="var">abortRef</span> <span class="op">=</span> <span class="fn">useRef</span><span class="op">&lt;</span><span class="type">AbortController</span><span class="op">&gt;();</span></span></span>
+<span class="line">  <span class="cm">// ── Auth ─────────────────────</span></span>
+<span class="line">  <span class="sel"><span class="key">"sign_in"</span><span class="op">:</span>        <span class="str">"Sign in to your account"</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"forgot_pw"</span><span class="op">:</span>     <span class="str">"Forgot password?"</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"no_account"</span><span class="op">:</span>    <span class="str">"Don't have an account?"</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"create_acc"</span><span class="op">:</span>    <span class="str">"Create one for free"</span><span class="op">,</span></span></span>
 <span class="line"></span>
-<span class="line"><span class="sel">  <span class="fn">useEffect</span><span class="op">(() =&gt; {</span></span></span>
-<span class="line"><span class="sel">    <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span><span class="op">?.</span><span class="fn">abort</span><span class="op">();</span></span></span>
-<span class="line"><span class="sel">    <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span> <span class="op">=</span> <span class="kw">new</span> <span class="type">AbortController</span><span class="op">();</span></span></span>
-<span class="line"><span class="sel">    <span class="fn">fetchData</span><span class="op">(</span><span class="var">url</span><span class="op">,</span> <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span><span class="op">);</span></span></span>
-<span class="line"><span class="sel">    <span class="kw">return</span> <span class="op">() =&gt;</span> <span class="var">abortRef</span><span class="op">.</span><span class="var">current</span><span class="op">?.</span><span class="fn">abort</span><span class="op">();</span></span></span>
-<span class="line"><span class="sel">  <span class="op">},</span> <span class="op">[</span><span class="var">url</span><span class="op">,</span> <span class="op">...</span><span class="var">deps</span><span class="op">]);</span></span></span>
-<span class="line"></span>
-<span class="line">  <span class="kw">return</span> <span class="op">{</span> <span class="var">data</span><span class="op">,</span> <span class="var">loading</span><span class="op">,</span> <span class="var">error</span> <span class="op">};</span></span>
-<span class="line"><span class="op">}</span></span>
+<span class="line">  <span class="cm">// ── Errors ───────────────────</span></span>
+<span class="line">  <span class="sel"><span class="key">"err_generic"</span><span class="op">:</span>   <span class="str">"Something went wrong."</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"err_network"</span><span class="op">:</span>   <span class="str">"Check your connection."</span><span class="op">,</span></span></span>
+<span class="line">  <span class="sel"><span class="key">"err_session"</span><span class="op">:</span>   <span class="str">"Session expired. Sign in again."</span></span></span>
+<span class="line"><span class="sel"><span class="op">}</span></span></span>
           </code>
         </div>
       </div>
@@ -514,7 +565,7 @@
   </div>
 
   <!-- ═══════════════════════════════════
-       CARD 2 — Spark Actions (Summarize active)
+       CARD 2 — Spark Actions (Translate active)
   ════════════════════════════════════ -->
   <div class="card spark-card">
     <div class="card-header">
@@ -575,22 +626,8 @@
         </div>
       </div>
 
-      <!-- Ask AI -->
+      <!-- Summarize -->
       <div class="action-item">
-        <div class="action-icon">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-            <path d="M7.5 1.5C4.186 1.5 1.5 4 1.5 7.1c0 1.68.73 3.19 1.9 4.24L3 13l2.09-1.07A6.1 6.1 0 0 0 7.5 12.7c3.314 0 6-2.5 6-5.6s-2.686-5.6-6-5.6Z" stroke="currentColor" stroke-width="1.3"/>
-            <path d="M6 6a1.5 1.5 0 1 1 2.25 1.3A.75.75 0 0 0 7.5 8v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <circle cx="7.5" cy="10" r=".6" fill="currentColor"/>
-          </svg>
-        </div>
-        <div class="action-text">
-          <div class="action-title">Ask AI</div>
-        </div>
-      </div>
-
-      <!-- Summarize — ACTIVE -->
-      <div class="action-item active">
         <div class="action-icon">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <rect x="2" y="2" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
@@ -599,20 +636,38 @@
         </div>
         <div class="action-text">
           <div class="action-title">Summarize</div>
-          <div class="action-subtitle">Condense selected block</div>
         </div>
-        <div class="action-badge">S</div>
+      </div>
+
+      <!-- Translate — ACTIVE -->
+      <div class="action-item active">
+        <div class="action-icon">
+          <!-- Globe / translate icon -->
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M7.5 2C7.5 2 5.5 4.5 5.5 7.5s2 5.5 2 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M7.5 2c0 0 2 2.5 2 5.5s-2 5.5-2 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="2" y1="7.5" x2="13" y2="7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="2.8" y1="5" x2="12.2" y2="5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="1.5 1"/>
+            <line x1="2.8" y1="10" x2="12.2" y2="10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="1.5 1"/>
+          </svg>
+        </div>
+        <div class="action-text">
+          <div class="action-title">Translate</div>
+          <div class="action-subtitle">Convert selected strings to French</div>
+        </div>
+        <div class="action-badge">T</div>
       </div>
 
     </div>
   </div>
 
   <!-- ═══════════════════════════════════
-       CARD 3 — Summarize Output
+       CARD 3 — Translate Output
   ════════════════════════════════════ -->
   <div class="card output-card">
     <div class="card-header">
-      <span class="card-title">Summarize</span>
+      <span class="card-title">Translate</span>
       <div class="close-btn">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -624,52 +679,63 @@
     <!-- Meta bar -->
     <div class="meta-bar">
       <div class="meta-chip">
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.3"/>
-          <polyline points="5,3 5,5.5 6.5,6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        ~30s read
+        <span style="font-size:11px">🇺🇸</span>
+        EN
       </div>
-      <div class="meta-chip">
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path d="M1.5 3h7M1.5 5h7M1.5 7h4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-        16 lines → 3 points
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:var(--text-dim);flex-shrink:0">
+        <path d="M3 7h8M8 4.5l2.5 2.5L8 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="meta-chip" style="color:var(--teal);background:var(--teal-glow);border-color:var(--teal-border)">
+        <span style="font-size:11px">🇫🇷</span>
+        FR
       </div>
       <div class="meta-sep"></div>
-      <div class="meta-label">useDataFetcher.ts</div>
+      <div class="meta-label">13 keys</div>
     </div>
 
     <!-- Output box -->
     <div class="output-box">
       <div class="output-label">
         <div class="output-dot"></div>
-        <span class="output-label-text">Summary</span>
+        <span class="output-label-text">Translation</span>
       </div>
 
-      <!-- TL;DR -->
-      <div class="tldr-block">
-        <span class="tldr-tag">TL;DR</span>
-        <span class="tldr-text">A generic React hook that fetches data from a URL, tracks loading and error states, and automatically cancels in-flight requests on re-render or unmount.</span>
+      <!-- Translated block preview -->
+      <div class="translation-block">
+        <div class="t-row">
+          <span class="t-flag">🇺🇸</span>
+          <div class="t-content">
+            <div class="t-key">welcome_title</div>
+            <div class="t-text" style="color:var(--text-secondary)">Welcome back!</div>
+          </div>
+        </div>
+        <div class="t-divider"></div>
+        <div class="t-row">
+          <span class="t-flag">🇫🇷</span>
+          <div class="t-content">
+            <div class="t-key" style="color:var(--teal)">welcome_title</div>
+            <div class="t-text">Bienvenue à nouveau&nbsp;!</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Key points -->
+      <!-- Translator notes -->
       <div>
-        <div class="points-label">Key Points</div>
+        <div class="notes-label">Translator Notes</div>
 
-        <div class="point-item">
-          <div class="point-index">1</div>
-          <div class="point-text"><strong>Generic hook</strong> — accepts a typed URL and dependency array, returning <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(124,140,255,0.1);color:#56CCF2;padding:1px 5px;border-radius:3px;">{ data, loading, error }</code>.</div>
+        <div class="note-item">
+          <div class="note-index">1</div>
+          <div class="note-text"><strong>Formal register</strong> — used <span class="ic">vous</span>-style phrasing throughout to match a professional SaaS tone.</div>
         </div>
 
-        <div class="point-item">
-          <div class="point-index">2</div>
-          <div class="point-text"><strong>Abort control</strong> — uses <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(124,140,255,0.1);color:#56CCF2;padding:1px 5px;border-radius:3px;">AbortController</code> via a ref to cancel stale requests before each new fetch.</div>
+        <div class="note-item">
+          <div class="note-index">2</div>
+          <div class="note-text"><strong>Punctuation</strong> — French spacing rules applied; non-breaking space added before <span class="ic">!</span> and <span class="ic">?</span> marks.</div>
         </div>
 
-        <div class="point-item">
-          <div class="point-index">3</div>
-          <div class="point-text"><strong>Cleanup on unmount</strong> — the <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(124,140,255,0.1);color:#56CCF2;padding:1px 5px;border-radius:3px;">useEffect</code> teardown aborts any pending request, preventing memory leaks.</div>
+        <div class="note-item">
+          <div class="note-index">3</div>
+          <div class="note-text"><strong>13 / 13 keys</strong> translated. No interpolation variables or plurals detected in selection.</div>
         </div>
       </div>
     </div>
